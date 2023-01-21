@@ -1,0 +1,41 @@
+https://davidwalsh.name/add-custom-css-wordpress-admin
+
+test_bhavikshop
+
+- user_master
+usr_id
+usr_name
+usr_email
+usr_password
+usr_role (1=admin,2=seller,3=customer)
+usr_block (0=not access, 1= access everything,2= not able to post order or anythign after login)
+usr_status (0= not able to login,1= do anythign)
+
+- user_meta
+usrmt_id
+usr_id
+
+- category_master
+cat_id
+cat_name
+cat_image
+cat_desc
+cat_status
+
+- product_master
+prod_id
+cat_id
+prod_name
+prod_image
+prod_desc
+prod_status
+
+- product_meta
+prodmt_id
+prod_id
+prodmt_glrimg
+
+
+
+
+
