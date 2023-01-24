@@ -16,15 +16,28 @@ $status_error = '';
 $action='';
 $id = '';
 $formaction = '';
+$submitedmsg = '';
 
-if (isset($_GET['action'])) {
+if (isset($_GET['action'])){
     $action = $_GET['action'];
     $formaction = 'action=' . $action;
 }
 
-if (isset($_GET['id'])) {
+if (isset($_GET['id'])){
     $id = $_GET['id'];
 }
+
+// msg display.........
+	if (isset($_GET["msg"]) && $_GET["msg"] == 'I') {
+		$submitedmsg = 'Record Added';
+	}
+	if (isset($_GET["msg"]) && $_GET["msg"] == 'u') {
+		$submitedmsg = 'Record Updated';
+	}
+	if (isset($_GET["msg"]) && $_GET["msg"] == 'd') {
+		$submitedmsg = 'Record Deleted';
+	}
+//End msg..........
 
 // insert in DB with validation..........................
 if (isset($_POST['submit'])) { $error = 'false';
@@ -62,15 +75,19 @@ if (isset($_POST['submit'])) { $error = 'false';
 
 	if ($error == 'false') 
     {
-		$ins_query ="INSERT INTO `user_master` (`usr_name`,`usr_email`,`usr_password`,`usr_role`,`usr_block`,`status`)VALUES ('" .$usr_name . "','" . $usr_email . "','" . $usr_password . "','" . $usr_role . "','" . $usr_block ."','" .$status ."')";
-		$ins_result = mysqli_query($conn, $ins_query);
+		if($_POST["submit"] == 'Add') 
+        {
+			$ins_query ="INSERT INTO `user_master` (`usr_name`,`usr_email`,`usr_password`,`usr_role`,`usr_block`,`status`)VALUES ('" .$usr_name . "','" . $usr_email . "','" . $usr_password . "','" . $usr_role . "','" . $usr_block ."','" .$status ."')";
+			$ins_result = mysqli_query($conn, $ins_query);
 
-		if ($ins_result){
-			echo 'date inserted';
-			header("location:user_master.php");
+				header("location:user_master.php?msg=I");
+				//header("refresh:2");
 		}
-		else{
-				echo 'error';
+		elseif ($_POST["submit"] == 'Edit'){
+            $user_update = "UPDATE `user_master` SET `usr_name`='".$usr_name."', `usr_email`='" . $usr_email . "', `usr_password`='" . $usr_password . "', `usr_role`='" . $usr_role . "', `usr_block`='" . $usr_block ."',`status`='" .$status ."' WHERE usr_id='$id'";
+            $user_result = mysqli_query($conn, $user_update);
+
+				header("location:user_master.php?msg=u");
 			}
 	}
 }
@@ -98,6 +115,24 @@ if ($id != '') {
 	$status = $user_row['status'];
 }
 // End edit form..........
+
+//Delete ................................
+/*
+if ($id != '' && $action == 'Delete') {
+
+    $delete_user_query  = "SELECT * FROM `user_master` WHERE `usr_id` =  $id ";
+	echo $delete_user_query;
+	exit;
+    $delete_user_result = mysqli_query($conn, $delete_user_query);
+    $delete_user_row    = mysqli_num_rows($delete_user_result);
+
+	if ($delete_user_row > 0) {
+        $listing_delete  = mysqli_query($conn, "DELETE  FROM  `user_master` WHERE `usr_id`=" . $id);
+        header("location:user_master.php?msg=Delete");
+    }
+}
+*/
+//End delete.........................
 
 ?>
 <!DOCTYPE html>
@@ -151,9 +186,9 @@ if($action == 'Add' || $action == 'Edit')
 							<label for="Role" class="form-label">Role</label>
 							<select name="usr_role" class="form-control" value="<?php echo $usr_role; ?>"><?php echo $usr_role_error ; ?>
 							<option value="0">--select--</option>
-							<option value="1"<?php if ($usr_role == 'Admin') { echo 'selected="selected"'; } ?>>Admin</option>
-							<option value="2">Seller</option>
-							<option value="3">Customer</option></select>
+							<option value="Admin"<?php if ($usr_role == 'Admin') { echo 'selected="selected"'; } ?>>Admin</option>
+							<option value="Seller"<?php if ($usr_role == 'Seller') { echo 'selected="selected"'; } ?>>Seller</option>
+							<option value="Customer"<?php if ($usr_role == 'Customer') { echo 'selected="selected"'; } ?>>Customer</option></select>
 							</div>
 						</div>
 						<div class="col-sm-12">
@@ -161,11 +196,11 @@ if($action == 'Add' || $action == 'Edit')
 							<label for="Role" class="form-label">Status</label>
 							<br>
 								<div class="form-check form-check-inline">
-								<input class="form-check-input" type="radio" name="status" id="inlineRadio1" value="1">
+								<input class="form-check-input" type="radio" name="status" id="inlineRadio1" value="1" <?php if ($status == '1') { echo 'checked="checked"'; }?>>
 								<label class="form-check-label" for="inlineRadio1">Active</label>
 								</div>
 								<div class="form-check form-check-inline">
-								<input class="form-check-input" type="radio" name="status" id="inlineRadio2" value="0">
+								<input class="form-check-input" type="radio" name="status" id="inlineRadio2" value="0" <?php if ($status == '0') { echo 'checked="checked"'; }?>>
 								<label class="form-check-label" for="inlineRadio2">Deactive</label>
 								</div>
 							</div>
@@ -183,7 +218,10 @@ if($action == 'Add' || $action == 'Edit')
 	} 
 	else{ 
   ?>
+
 		<head>
+		<?php if ($submitedmsg != ''){ echo '<div class="container" align="left">' . $submitedmsg . '</div>'; }?>
+
 			<div class="container" align="right">
 				<a href="user_master.php?action=Add" class="btn btn-outline-success">Add+</a>
 			</div>
@@ -216,7 +254,7 @@ if($action == 'Add' || $action == 'Edit')
                             <td><?php echo $listing_row['status']; ?></td>
                             <td>
                                 <a class="btn btn-info" href="user_master.php?action=Edit&id=<?php echo $listing_row['usr_id']; ?>">Edit</a>&nbsp;
-                                <a class="btn btn-danger" onclick="return deletelist();" value="Delete" href="user_master.php?action=Delete&id=<?php echo $listing_row['usr_id']; ?>">Delete</a>
+                                <a class="btn btn-danger"  value="Delete" href="user_master.php?action=Delete&id=<?php echo $listing_row['usr_id']; ?>">Delete</a>
                             </td>
                         </tr>
                 <?php }
