@@ -41,7 +41,7 @@ $listing_result = mysqli_query($conn, $listing_sql);
 // End query's.....................
 
 // start edit form........
-/* if($id != ''){
+ if($id != ''){
 	$formaction .= '&id=' . $id;
 	// get edit records in form of selected id
 	$update_query = "SELECT * FROM `category_master` WHERE `cat_id` =  $id ";
@@ -49,11 +49,11 @@ $listing_result = mysqli_query($conn, $listing_sql);
 
 	$cat_row = $update_result->fetch_assoc();
 	$cat_name   = $cat_row['cat_name'];
-	$cat_image  = $cat_row['cat_image'];
+	// $cat_image  = $cat_row['cat_image'];
 	$cat_desc   = $cat_row['cat_desc'];
 	$cat_status = $cat_row['cat_status'];
 	
-}*/
+}
 // End edit form..........
 
 // insert in DB with validation..........................
@@ -98,8 +98,13 @@ if (isset($_POST['submit'])) {
 			$ins_result = mysqli_query($conn, $ins_query);
 			header("location:category.php?msg=I");
 		}elseif($_POST["submit"] == 'Edit'){
-			$cat_update = "UPDATE `category_master` SET `cat_name`='" . $cat_name . "', `cat_image`='" . $cat_image . "', `cat_desc`='" . $cat_desc . "', `cat_status`='" . $cat_status . "' ";
+			$cat_update = "UPDATE `category_master` SET `cat_name`='" . $cat_name . "', `cat_image`='" . $cat_image . "', `cat_desc`='" . $cat_desc . "', `cat_status`='" . $cat_status . "'  WHERE cat_id='$id'";
 			$cat_result = mysqli_query($conn, $cat_update);
+             
+             if($cat_image != ''){
+				$cat_update = "UPDATE `category_master` SET `cat_image`='" . $cat_image . "' WHERE `cat_id`='".$id."' ";
+				$cat_result = mysqli_query($conn, $cat_update);
+			}
 
 			header("location:category.php?msg=U");
 		}
