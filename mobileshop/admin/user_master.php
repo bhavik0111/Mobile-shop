@@ -62,7 +62,7 @@ if($id != ''){
 // End edit form..........
 
 // insert in DB with validation..........................
-if (isset($_POST['submit'])) {
+if(isset($_POST['submit'])){
 	$error = 'false';
 
 	$usr_name = $_POST['usr_name'];
@@ -212,13 +212,13 @@ if($id != '' && $action == 'Delete'){
 				<tr><td>
 					<table width="100%" border="1">
 				<tr>
-					<td>ID</td>
-					<td>Name</td>
-					<td>Email</td>
-					<td>Role</td>
-					<td>Block</td>
-					<td>Status</td>
-					<td>Action</td>
+					<td><b>ID</b></td>
+					<td><b>Name</b></td>
+					<td><b>Email</b></td>
+					<td><b>Role</b></td>
+					<td><b>Block</b></td>
+					<td><b>Status</b></td>
+					<td><b>Action</b></td>
 				</tr>
 				<?php
 				if ($listing_result->num_rows > 0) {
@@ -247,4 +247,3 @@ if($id != '' && $action == 'Delete'){
 	</table>
 	</td></tr>
 <?php include('footer.php');	?>
-
