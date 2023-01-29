@@ -14,6 +14,14 @@ $id = '';
 $formaction = '';
 $submitedmsg = '';
 
+$column = isset($_GET['column']) && $_GET['column'] ? $_GET['column'] : 'cat_id';
+$sort_order = isset($_GET['order']) && strtolower($_GET['order']) == 'desc' ? 'DESC' : 'ASC';
+$asc_or_desc = $sort_order == 'ASC' ? 'desc' : 'asc';
+
+$search_url = isset($_GET['search']) && $_GET['search'] ? 'search='.$_GET['search'].'&' : '';   
+$search_value = isset($_GET['search']) && $_GET['search'] ? $_GET['search'] : ''; 
+                                                              
+
 if(isset($_GET['action'])){
 	$action = $_GET['action'];
 	$formaction = 'action=' . $action;
@@ -26,17 +34,21 @@ if(isset($_GET['id'])){
 // msg display.........
 if(isset($_GET["msg"]) && $_GET["msg"] == 'I'){
 	$submitedmsg = 'Record Added';
+	// header("refresh:2");
 }
 if(isset($_GET["msg"]) && $_GET["msg"] == 'U'){
 	$submitedmsg = 'Record Updated';
+	// header("refresh:2");
 }
-if(isset($_GET["msg"]) && $_GET["msg"] == 'D'){
+if(isset($_GET["msg"]) &&  $_GET["msg"] == 'D'){
 	$submitedmsg = 'Record Deleted';
+	// header("refresh:2");
 }
 //End msg..........
+ 
 
 // All query's.....................
-$listing_sql = "SELECT * FROM `category_master` WHERE `cat_id` = cat_id ";
+$listing_sql = "SELECT * FROM `category_master` WHERE (category_master.cat_name like '%" . $search_value . "%' OR category_master.cat_desc like '%" . $search_value . "%') ORDER BY $column  $sort_order  LIMIT  $offset, $total_records_per_page";
 $listing_result = mysqli_query($conn, $listing_sql);
 // End query's............
 
@@ -84,7 +96,6 @@ if (isset($_POST['submit'])) {
 		$cat_status_error = 'Please select status';
 		$error = 'true';
 	}
-
     //for image..
         if(isset($_FILES["cat_image"]) && $_FILES["cat_image"]["name"]!='')
         { 
@@ -186,19 +197,21 @@ if($id != '' && $action == 'Delete'){
 		<tr><td align="right"><?php if ($submitedmsg != '') { echo $submitedmsg; } ?></td></tr>
 
         <tr><td>
-           <input type="text" placeholder="Search.." name="search"><button type="submit" id="search_btn" class="btn btn-outline-warning">Search</button>
-        </td></tr>
+			<form method="get" action="category.php">
+           <input type="text" placeholder="Search.." name="search" value="<?php echo $search_value; ?>"><button type="submit" id="search_btn" class="btn btn-outline-warning">Search</button>
+		</form>
+		</td></tr>
         
 		<tr><td align="right"><a href="<?php echo SITE_URL_ADMIN.'/category.php?action=Add';?>">Add+</a></td></tr>
 		<tr><td>
 			<table width="100%" border="1">
 				<tr>
-					<td>ID</td>
-					<td>Name</td>
-					<td>Image</td>
-					<td>Description</td>
-					<td>Status</td>
-					<td>Action</td>
+					<td><a href="category.php?<?php echo $search_url; ?>column=cat_id&order=<?php echo $asc_or_desc; ?>"><b>ID</b></td>
+					<td><a href="category.php?<?php echo $search_url; ?>column=cat_name&order=<?php echo $asc_or_desc; ?>"><b>Name</b></td>
+					<td><b>Image</b></td>
+					<td><a href="category.php?<?php echo $search_url; ?>column=cat_desc&order=<?php echo $asc_or_desc; ?>"><b>Description</b></td>
+					<td><a href="category.php?<?php echo $search_url; ?>column=cat_status&order=<?php echo $asc_or_desc; ?>"><b>Status</b></td>
+					<td><b>Action</b></td>
 				</tr>
 				<?php
 					if($listing_result->num_rows > 0){
@@ -217,7 +230,7 @@ if($id != '' && $action == 'Delete'){
 				<?php } } ?>
 			</table>
 		</td></tr>
-		<tr><td>Pagination</td></tr>
+		<tr><td> <?php include('pagination.php')?></td></tr>
 		<?php  	
 		}
 		?>
@@ -225,4 +238,3 @@ if($id != '' && $action == 'Delete'){
 	</table>
 </td></tr>
 <?php include('footer.php'); ?>
-
