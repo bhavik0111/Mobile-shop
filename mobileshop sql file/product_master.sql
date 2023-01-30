@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 21, 2023 at 09:01 AM
+-- Generation Time: Jan 30, 2023 at 01:12 PM
 -- Server version: 10.4.24-MariaDB
 -- PHP Version: 8.1.6
 
@@ -31,10 +31,18 @@ CREATE TABLE `product_master` (
   `prod_id` int(11) NOT NULL,
   `cat_id` int(11) NOT NULL,
   `prod_name` varchar(255) NOT NULL,
-  `prod_image` int(11) NOT NULL,
-  `prod_desc` int(11) NOT NULL,
-  `prod_status` int(11) NOT NULL
+  `prod_price` double NOT NULL,
+  `prod_image` varchar(255) NOT NULL,
+  `prod_desc` text NOT NULL,
+  `prod_status` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `product_master`
+--
+
+INSERT INTO `product_master` (`prod_id`, `cat_id`, `prod_name`, `prod_price`, `prod_image`, `prod_desc`, `prod_status`) VALUES
+(1, 0, 'oppo reno2', 15000, '1675078007samsung1.jpg', 'BLACK', 'Active');
 
 --
 -- Indexes for dumped tables
@@ -54,7 +62,7 @@ ALTER TABLE `product_master`
 -- AUTO_INCREMENT for table `product_master`
 --
 ALTER TABLE `product_master`
-  MODIFY `prod_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `prod_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
