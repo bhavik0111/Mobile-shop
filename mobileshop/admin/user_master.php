@@ -62,7 +62,7 @@ if($id != ''){
 // End edit form..........
 
 // insert in DB with validation..........................
-if(isset($_POST['submit'])){
+if (isset($_POST['submit'])) {
 	$error = 'false';
 
 	$usr_name = $_POST['usr_name'];
@@ -142,7 +142,7 @@ if($id != '' && $action == 'Delete'){
 
 	if ($delete_user_row > 0){
 		$listing_delete  = mysqli_query($conn, "DELETE  FROM  `user_master` WHERE `usr_id`= $id");
-		header("location:user_master.php?msg=D");
+		header("location:".SITE_URL."/user_master.php?msg=D");
 	}
 }
 //End delete.........................
@@ -151,9 +151,9 @@ if($id != '' && $action == 'Delete'){
 		<table width="100%" border="1">
 			<tr><td width="100%" align="center"><h3>All users</h3></td></tr>
 <?php if ($action == 'Add' || $action == 'Edit') { ?>
-	<tr><td><form method="POST" action="'.SITE_URL_ADMIN.'/user_master.php?<?php echo $formaction; ?>">
-					<table width="50%" border="1" cellpadding="5" align="center">
-<tr><td colspan="2"><a href="<?php echo SITE_URL_ADMIN.'/user_master.php';?>" class="btn btn-outline-success">Back</a></td></tr> //........
+	<tr><td><form method="POST" action="user_master.php?<?php echo $formaction; ?>">
+			<table width="50%" border="1" cellpadding="5" align="center">
+	<tr><td colspan="2"><a href="<?php echo SITE_URL_ADMIN.'/user_master.php';?>" class="btn btn-outline-success">Back</a></td></tr> 
 				
 				<tr>
 					<th>Name</th>
@@ -190,9 +190,7 @@ if($id != '' && $action == 'Delete'){
 				</tr>
 				<tr>
 					<th>Status</th>
-					<td><input type="radio" name="status" value="1" <?php if ($status == '1') {
-																		echo 'checked="checked"';
-																	} ?>>Active
+					<td><input type="radio" name="status" value="1" <?php echo " checked $status == '1'"; ?>>Active
 						<input type="radio" name="status" value="0" <?php if ($status == '0') {
 																		echo 'checked="checked"';
 																	} ?>>Deactive
@@ -208,17 +206,17 @@ if($id != '' && $action == 'Delete'){
 		
 			<?php if ($submitedmsg != '') { echo $submitedmsg; } ?>
 
-				<tr><td><a href="/user_master.php?action=Add" class="btn btn-outline-success">Add+</a></td></tr>
+				<tr><td><a href="user_master.php?action=Add" class="btn btn-outline-success">Add+</a></td></tr>
 				<tr><td>
 					<table width="100%" border="1">
 				<tr>
-					<td><b>ID</b></td>
-					<td><b>Name</b></td>
-					<td><b>Email</b></td>
-					<td><b>Role</b></td>
-					<td><b>Block</b></td>
-					<td><b>Status</b></td>
-					<td><b>Action</b></td>
+					<td>ID</td>
+					<td>Name</td>
+					<td>Email</td>
+					<td>Role</td>
+					<td>Block</td>
+					<td>Status</td>
+					<td>Action</td>
 				</tr>
 				<?php
 				if ($listing_result->num_rows > 0) {
@@ -231,8 +229,8 @@ if($id != '' && $action == 'Delete'){
 							<td><?php echo $listing_row['usr_block']; ?></td>
 							<td><?php echo $listing_row['status']; ?></td>
 							<td>
-								<a class="btn btn-info" href="SITE_URL_ADMIN './user_master.php'?action=Edit&id=<?php echo $listing_row['usr_id']; ?>">Edit</a>&nbsp;
-								<a class="btn btn-danger" value="Delete" href="SITE_URL_ADMIN './user_master.php'?action=Delete&id=<?php echo $listing_row['usr_id']; ?>">Delete</a>
+								<a class="btn btn-info" href="user_master.php?action=Edit&id=<?php echo $listing_row['usr_id']; ?>">Edit</a>&nbsp;
+								<a class="btn btn-danger" value="Delete" href="user_master.php?action=Delete&id=<?php echo $listing_row['usr_id']; ?>">Delete</a>
 							</td>
 						</tr>
 				<?php }
@@ -247,3 +245,4 @@ if($id != '' && $action == 'Delete'){
 	</table>
 	</td></tr>
 <?php include('footer.php');	?>
+
