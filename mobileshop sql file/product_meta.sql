@@ -30,7 +30,7 @@ SET time_zone = "+00:00";
 CREATE TABLE `product_meta` (
   `prodmt_id` int(11) NOT NULL,
   `prod_id` int(11) NOT NULL,
-  `prodmt_glrimg` int(11) NOT NULL
+  `prodmt_glrimg` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
