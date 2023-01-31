@@ -66,7 +66,8 @@ if($id != ''&& $action == 'Edit'){
 	$update_result = mysqli_query($conn, $update_query);
     
 	$prod_row = $update_result->fetch_assoc();
-
+    
+    $cat_id = $prod_row['cat_id'];
 	$prod_name   = $prod_row['prod_name'];
 	$prod_price   = $prod_row['prod_price'];
 	$edit_prod_image  = $prod_row['prod_image'];
@@ -184,12 +185,12 @@ if($id != '' && $action == 'Delete'){
                     <tr>
                         <th>Category</th>
                         <td>
-                            <select name="cat_id" value="<?php echo $cat_id; ?>"><br><?php echo $cat_id_error; ?>
+                            <select name="cat_id">
                                 <option value="0">--select--</option>
                             <?php if($result->num_rows > 0){
                                		while ($listing_row = $result->fetch_assoc()){ 
                                			?>
-                                <option value="<?php echo $listing_row['cat_id']; ?>" <?php if ($id == $listing_row['cat_id']){ echo "selected"; }
+                                <option value="<?php echo $listing_row['cat_id']; ?>" <?php if ($cat_id == $listing_row['cat_id']){ echo "selected"; }
                                                     ?>><?php echo $listing_row['cat_name']; ?></option>
                                         <?php
                                     }
@@ -208,7 +209,8 @@ if($id != '' && $action == 'Delete'){
 					</tr>
 					<tr>
 						<th>Image</th>
-						<td><input type="file" name="prod_image" value=""><br><?php echo $prod_image_error; ?></td>
+						<td><input type="file" name="prod_image" value=""><br><?php echo $prod_image_error; ?>
+						<?php if($action == 'Edit'){ ?><img src="<?php echo SITE_URL_IMG.'/product/'.$listing_row['prod_image']; ?>" height="100" width="100"><?php } ?></td>
 					</tr>
 					<tr>
 						<th>Description</th>
@@ -221,9 +223,22 @@ if($id != '' && $action == 'Delete'){
 						</td>
 					</tr>
 					<tr>
+						<th>Image</th>
+	                    <?php   
+	                        if ($result->num_rows > 0){
+	                            while ($row = $result->fetch_assoc()){
+	                        ?>
+							<td><input type="file" name="prodmt_glrimg" class="prodmt_glrimg"></td>
+							<?php
+								}
+							}
+						?>
+						<td><button type="button" id="Addimage" onclick="addimage()">Add++</button></td>
+					</tr>
+					<tr>
 						<td colspan="2" align="center"><input type="submit" name="submit" value="<?php echo $action; ?>"></td>
 					</tr>
-				</table>
+				</table><br>
 			</form>
 		</td></tr>
 
@@ -268,21 +283,27 @@ if($id != '' && $action == 'Delete'){
 				</tr>
 				<?php } } ?>
 			</table>
+			
 		</td></tr>
 		<tr><td> <?php include('pagination.php')?></td></tr>
 		<?php  	
 		}
 		?>
-     <script>
-	    //conformation delete msg.......
-	    function deletelist(){
-	        if (confirm("Are you sure Delete Rocord?")){
-	            return true;
-	        }else{
-	            return false;
-	        }
-	    }
-    </script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.2/jquery.min.js"></script>
+	    <script>
+		    function addimage(){
+                var html = '<td><input type="file" name="prodmt_glrimg" class="prodmt_glrimg">'
+                <?php
+                if ($result->num_rows > 0){
+                    while ($row = $result->fetch_assoc()){
+                   ?> 
+                        '<td><input type="file" name="prodmt_glrimg" class="prodmt_glrimg">'
+                   <?php
+                    }
+                }
+                ?> 
+            }
+	    </script>
 	</table>
 </td></tr> 
 <?php include('footer.php'); ?>   
