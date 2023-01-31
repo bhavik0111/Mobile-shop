@@ -39,3 +39,12 @@ $total_no_of_pages = ceil($total_records / $total_records_per_page);
 $second_last = $total_no_of_pages - 1;
 
 ?>
+<script>
+  function deletelist(){
+      if (confirm("Are you sure Delete Rocord?")){
+          return true;
+      }else{
+          return false;
+      }
+  }
+</script>
