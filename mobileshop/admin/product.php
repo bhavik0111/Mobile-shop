@@ -223,7 +223,7 @@ if($id != '' && $action == 'Delete'){
 						</td>
 					</tr>
 					<tr>
-						<th>Image</th>
+						<th>Gallery image</th>
 	                    <?php   
 	                        if ($result->num_rows > 0){
 	                            while ($row = $result->fetch_assoc()){
