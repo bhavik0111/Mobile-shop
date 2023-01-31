@@ -14,13 +14,13 @@ $id = '';
 $formaction = '';
 $submitedmsg = '';
 
+$search_url = isset($_GET['search']) && $_GET['search'] ? 'search='.$_GET['search'].'&' : '';   
+$search_value = isset($_GET['search']) && $_GET['search'] ? $_GET['search'] : ''; 
+                  
+
 $column = isset($_GET['column']) && $_GET['column'] ? $_GET['column'] : 'cat_id';
 $sort_order = isset($_GET['order']) && strtolower($_GET['order']) == 'desc' ? 'DESC' : 'ASC';
 $asc_or_desc = $sort_order == 'ASC' ? 'desc' : 'asc';
-
-$search_url = isset($_GET['search']) && $_GET['search'] ? 'search='.$_GET['search'].'&' : '';   
-$search_value = isset($_GET['search']) && $_GET['search'] ? $_GET['search'] : ''; 
-                                                              
 
 if(isset($_GET['action'])){
 	$action = $_GET['action'];
@@ -53,7 +53,7 @@ $listing_result = mysqli_query($conn, $listing_sql);
 // End query's............
 
 // start edit form........
- if($id != ''&& $action == 'Edit'){
+if($id != ''&& $action == 'Edit'){
 	$formaction .= '&id=' . $id;
 	// get edit records in form of selected id
 	$update_query = "SELECT * FROM `category_master` WHERE `cat_id` =  $id ";
@@ -64,10 +64,6 @@ $listing_result = mysqli_query($conn, $listing_sql);
 	$edit_cat_image  = $cat_row['cat_image'];
 	$cat_desc   = $cat_row['cat_desc'];
 	$cat_status = $cat_row['cat_status'];
-
-	// $path ='./Cateimage/'.$cat_row['cat_image']; 
-	// 	if(file_exists($path)){ unlink($path); //echo "File Successfully update.";
-    // 	} 
 }
 // End edit form..........
 
@@ -117,7 +113,6 @@ if (isset($_POST['submit'])) {
 		}else{
 			$cat_image = $edit_cat_image;
 		}
-		
 	//End image..
 
 	if ($error == 'false')
@@ -155,6 +150,7 @@ if($id != '' && $action == 'Delete'){
 	}
 }
 //End delete............
+
 ?>
 <tr><td width="100%">
 	<table width="100%" border="0">
@@ -181,8 +177,8 @@ if($id != '' && $action == 'Delete'){
 					</tr>
 					<tr>
 						<th>Status</th>
-						<td><input type="radio" name="cat_status" value="1" <?php echo "checked $cat_status == '1'" ; ?>>Active
-							<input type="radio" name="cat_status" value="0" <?php if($cat_status == '0'){ echo 'checked="checked"'; } ?>>Deactive
+						<td><input type="radio" name="cat_status" value="Active" <?php echo "checked $cat_status == 'Active'" ; ?>>Active
+							<input type="radio" name="cat_status" value="Deactive" <?php if($cat_status == 'Deactive'){ echo "checked"; } ?>>Deactive
 						</td>
 					</tr>
 					<tr>
@@ -224,7 +220,7 @@ if($id != '' && $action == 'Delete'){
 					<td><?php echo $listing_row['cat_status']; ?></td>
 					<td>
 						<a class="btn btn-info" href="category.php?action=Edit&id=<?php echo $listing_row['cat_id']; ?>">Edit</a>&nbsp;
-						<a class="btn btn-danger" value="Delete" href="category.php?action=Delete&id=<?php echo $listing_row['cat_id']; ?>">Delete</a>
+						<a class="btn btn-danger" onclick="return deletelist();" value="Delete" href="category.php?action=Delete&id=<?php echo $listing_row['cat_id']; ?>">Delete</a>
 					</td>
 				</tr>
 				<?php } } ?>
@@ -234,7 +230,6 @@ if($id != '' && $action == 'Delete'){
 		<?php  	
 		}
 		?>
-
 	</table>
 </td></tr>
 <?php include('footer.php'); ?>
