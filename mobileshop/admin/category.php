@@ -16,11 +16,16 @@ $submitedmsg = '';
 
 $search_url = isset($_GET['search']) && $_GET['search'] ? 'search='.$_GET['search'].'&' : '';   
 $search_value = isset($_GET['search']) && $_GET['search'] ? $_GET['search'] : ''; 
-                  
 
 $column = isset($_GET['column']) && $_GET['column'] ? $_GET['column'] : 'cat_id';
 $sort_order = isset($_GET['order']) && strtolower($_GET['order']) == 'desc' ? 'DESC' : 'ASC';
 $asc_or_desc = $sort_order == 'ASC' ? 'desc' : 'asc';
+
+$result_count = mysqli_query($conn,'SELECT COUNT(*) As total_records FROM `category_master`');
+$total_records = mysqli_fetch_array($result_count);
+$total_records = $total_records['total_records'];
+$total_no_of_pages = ceil($total_records / $total_records_per_page);
+$second_last = $total_no_of_pages - 1;
 
 if(isset($_GET['action'])){
 	$action = $_GET['action'];
@@ -44,16 +49,20 @@ if(isset($_GET["msg"]) &&  $_GET["msg"] == 'D'){
 	$submitedmsg = 'Record Deleted';
 	// header("refresh:2");
 }
+if(isset($_GET["msg"]) &&  $_GET["msg"] == 'ND'){
+	$submitedmsg = 'Products Exist on this Category';
+	// header("refresh:2");
+}
 //End msg..........
- 
 
 // All query's.....................
 $listing_sql = "SELECT * FROM `category_master` WHERE (category_master.cat_name like '%" . $search_value . "%' OR category_master.cat_desc like '%" . $search_value . "%') ORDER BY $column  $sort_order  LIMIT  $offset, $total_records_per_page";
+
 $listing_result = mysqli_query($conn, $listing_sql);
 // End query's............
 
 // start edit form........
-if($id != ''&& $action == 'Edit'){
+if($id != '' && $action == 'Edit'){
 	$formaction .= '&id=' . $id;
 	// get edit records in form of selected id
 	$update_query = "SELECT * FROM `category_master` WHERE `cat_id` =  $id ";
@@ -115,8 +124,7 @@ if (isset($_POST['submit'])) {
 		}
 	//End image..
 
-	if ($error == 'false')
-	{
+	if ($error == 'false'){
 		if ($_POST["submit"] == 'Add')
 		{
 			$ins_query = "INSERT INTO `category_master` (`cat_name`,`cat_image`,`cat_desc`,`cat_status`) VALUES ('" . $cat_name . "','" . $cat_image . "','" . $cat_desc . "','" . $cat_status . "')";
@@ -134,20 +142,33 @@ if (isset($_POST['submit'])) {
 // End insert....
 
 //Delete ....
-if($id != '' && $action == 'Delete'){
-	$delete_cat_query  = "SELECT * FROM `category_master` WHERE `cat_id` =  $id ";
-	$delete_cat_result = mysqli_query($conn, $delete_cat_query);
-	$delete_cat_row_count   = mysqli_num_rows($delete_cat_result);
-	$delete_catimage_row = $delete_cat_result->fetch_assoc();
+if($id != '' && $action == 'Delete')
+{
+	//code for msg if product exist on category     limit 1 ni rakhvani
+		$delete_cat_prod_query  = "SELECT * FROM `product_master` WHERE `cat_id` = $id ";
+		$delete_cat_prod_result = mysqli_query($conn, $delete_cat_prod_query);
+		$delete_cat_prod_row_count   = mysqli_num_rows($delete_cat_prod_result);
+	        
+		if($delete_cat_prod_row_count > 0){
+			header("location:".SITE_URL_ADMIN."./category.php?msg=ND"); 
+			exit;  
+		}
+	//end code for msg if product exist on category
+
+		$delete_cat_query  = "SELECT * FROM `category_master` WHERE `cat_id` = $id ";
+		$delete_cat_result = mysqli_query($conn, $delete_cat_query);
+		$delete_cat_row_count   = mysqli_num_rows($delete_cat_result);
+		$delete_catimage_row = $delete_cat_result->fetch_assoc();
         
 	if($delete_cat_row_count > 0){
-		// $path ='./Cateimage/'.$delete_catimage_row['cat_image']; 
 		$path =SITE_ROOT_IMG.'/category/'.$delete_catimage_row['cat_image'];
-		if(file_exists($path)){ unlink($path); //echo "File Successfully Delete.";
-        	} 
+
+		if(file_exists($path)){ 
+		 	unlink($path); //echo "File Successfully Delete.";
+        }
 		$listing_delete  = mysqli_query($conn, "DELETE  FROM  `category_master` WHERE `cat_id`= $id");
-		header("location:".SITE_URL_ADMIN."./category.php?msg=D");   //right.....
-	}
+		header("location:".SITE_URL_ADMIN."./category.php?msg=D");  
+	} 
 }
 //End delete............
 
@@ -190,7 +211,7 @@ if($id != '' && $action == 'Delete'){
 
 		<?php }else {  ?>
 
-		<tr><td align="right"><?php if ($submitedmsg != '') { echo $submitedmsg; } ?></td></tr>
+		<tr><td align="right"><?php if($submitedmsg != ''){ echo $submitedmsg; } ?></td></tr>
 
         <tr><td>
 			<form method="get" action="category.php">
@@ -210,19 +231,19 @@ if($id != '' && $action == 'Delete'){
 					<td><b>Action</b></td>
 				</tr>
 				<?php
-					if($listing_result->num_rows > 0){
-					 	while($listing_row = $listing_result->fetch_assoc()){ ?>
-				<tr>
-					<td><?php echo $listing_row['cat_id']; ?></td>
-					<td><?php echo $listing_row['cat_name']; ?></td>
-					<td><img src="<?php echo SITE_URL_IMG.'/category/'.$listing_row['cat_image']; ?>" height="100" width="100"></td>
-					<td><?php echo $listing_row['cat_desc']; ?></td>
-					<td><?php echo $listing_row['cat_status']; ?></td>
-					<td>
-						<a class="btn btn-info" href="category.php?action=Edit&id=<?php echo $listing_row['cat_id']; ?>">Edit</a>&nbsp;
-						<a class="btn btn-danger" onclick="return deletelist();" value="Delete" href="category.php?action=Delete&id=<?php echo $listing_row['cat_id']; ?>">Delete</a>
-					</td>
-				</tr>
+				if($listing_result->num_rows > 0){
+				 	while($listing_row = $listing_result->fetch_assoc()){ ?>
+						<tr>
+							<td><?php echo $listing_row['cat_id']; ?></td>
+							<td><?php echo $listing_row['cat_name']; ?></td>
+							<td><img src="<?php echo SITE_URL_IMG.'/category/'.$listing_row['cat_image']; ?>" height="100" width="100"></td>
+							<td><?php echo $listing_row['cat_desc']; ?></td>
+							<td><?php echo $listing_row['cat_status']; ?></td>
+							<td>
+								<a class="btn btn-info" href="category.php?action=Edit&id=<?php echo $listing_row['cat_id']; ?>">Edit</a>&nbsp;
+								<a class="btn btn-danger" onclick="return deletelist();" value="Delete" href="category.php?action=Delete&id=<?php echo $listing_row['cat_id']; ?>">Delete</a>
+							</td>
+						</tr>
 				<?php } } ?>
 			</table>
 		</td></tr>
