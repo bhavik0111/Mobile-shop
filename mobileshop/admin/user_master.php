@@ -18,6 +18,15 @@ $id = '';
 $formaction = '';
 $submitedmsg = '';
 
+$search_url = isset($_GET['search']) && $_GET['search'] ? 'search='.$_GET['search'].'&' : '';   
+$search_value = isset($_GET['search']) && $_GET['search'] ? $_GET['search'] : ''; 
+
+$result_count = mysqli_query($conn,'SELECT COUNT(*) As total_records FROM `user_master`');
+$total_records = mysqli_fetch_array($result_count);
+$total_records = $total_records['total_records'];
+$total_no_of_pages = ceil($total_records / $total_records_per_page);
+$second_last = $total_no_of_pages - 1;
+
 if(isset($_GET['action'])){
 	$action = $_GET['action'];
 	$formaction = 'action=' . $action;
@@ -40,7 +49,9 @@ if(isset($_GET["msg"]) && $_GET["msg"] == 'D'){
 //End msg..........
 
 // All query's.....................
-	$listing_sql = "SELECT * FROM `user_master` WHERE `usr_id` = usr_id ";
+	$listing_sql = "SELECT * FROM `user_master` WHERE (user_master.usr_name like '%" . $search_value . "%' OR user_master.usr_email like '%" . $search_value . "%') LIMIT  $offset, $total_records_per_page";
+// echo($listing_sql);
+// exit;
 	$listing_result = mysqli_query($conn, $listing_sql);
 // End query's.....................
 
@@ -97,8 +108,10 @@ if (isset($_POST['submit'])) {
 		$error = 'true';
 	}
 	// check exist email
-	if($usr_email != ''){
-		if($id != ''){
+	if($usr_email != '')
+	{
+		if($id != '')
+		{
 			$fiend_email = mysqli_query($conn, "SELECT * FROM `user_master` WHERE `usr_email`='".$usr_email."' AND `usr_id` !='".$id."' ");
 			if(mysqli_num_rows($fiend_email)>0){
 				$usr_email_error = "email id already exists";
@@ -115,12 +128,15 @@ if (isset($_POST['submit'])) {
 	//End here exist email
 
 	if ($error == 'false'){
-		if ($_POST["submit"] == 'Add'){
+		if ($_POST["submit"] == 'Add')
+		{
 			$ins_query = "INSERT INTO `user_master` (`usr_name`,`usr_email`,`usr_password`,`usr_role`,`usr_block`,`status`) VALUES ('" . $usr_name . "','" . $usr_email . "','" . md5($usr_password) . "','" . $usr_role . "','" . $usr_block . "','" . $status . "')";
 
 			$ins_result = mysqli_query($conn, $ins_query);
-			header("location:".SITE_URL."/user_master.php?msg=I");
-		}elseif($_POST["submit"] == 'Edit'){
+			header("location:".SITE_URL_ADMIN."/user_master.php?msg=I");
+		}
+		elseif($_POST["submit"] == 'Edit')
+		{
 			$user_update = "UPDATE `user_master` SET `usr_name`='" . $usr_name . "', `usr_email`='" . $usr_email . "', `usr_role`='" . $usr_role . "', `usr_block`='" . $usr_block . "',`status`='" . $status . "' WHERE usr_id='$id'";
 			$user_result = mysqli_query($conn, $user_update);
 
@@ -128,7 +144,7 @@ if (isset($_POST['submit'])) {
 				$user_update = "UPDATE `user_master` SET `usr_password`='" . $usr_password . "' WHERE `usr_id`='".$id."' ";
 				$user_result = mysqli_query($conn, $user_update);
 			}
-			header("location:".SITE_URL."/user_master.php?msg=U");
+			header("location:".SITE_URL_ADMIN."/user_master.php?msg=U");
 		}
 	}
 }
@@ -142,7 +158,7 @@ if($id != '' && $action == 'Delete'){
 
 	if ($delete_user_row > 0){
 		$listing_delete  = mysqli_query($conn, "DELETE  FROM  `user_master` WHERE `usr_id`= $id");
-		header("location:".SITE_URL."/user_master.php?msg=D");
+		header("location:".SITE_URL_ADMIN."/user_master.php?msg=D");
 	}
 }
 //End delete.........................
@@ -150,10 +166,12 @@ if($id != '' && $action == 'Delete'){
 	<tr><td width="100%">
 		<table width="100%" border="1">
 			<tr><td width="100%" align="center"><h3>All users</h3></td></tr>
+
 <?php if ($action == 'Add' || $action == 'Edit') { ?>
+
 	<tr><td><form method="POST" action="user_master.php?<?php echo $formaction; ?>">
 			<table width="50%" border="1" cellpadding="5" align="center">
-	<tr><td colspan="2"><a href="<?php echo SITE_URL_ADMIN.'/user_master.php';?>" class="btn btn-outline-success">Back</a></td></tr> 
+	<tr><td colspan="2" align="right"><a href="<?php echo SITE_URL_ADMIN.'/user_master.php';?>" class="btn btn-outline-success"><b>Back</b></a></td></tr> 
 				
 				<tr>
 					<th>Name</th>
@@ -176,15 +194,9 @@ if($id != '' && $action == 'Delete'){
 					<td>
 						<select name="usr_role" value="<?php echo $usr_role; ?>"><br><?php echo $usr_role_error; ?>
 							<option value="0">--select--</option>
-							<option value="Admin" <?php if ($usr_role == 'Admin') {
-														echo 'selected="selected"';
-													} ?>>Admin</option>
-							<option value="Seller" <?php if ($usr_role == 'Seller') {
-														echo 'selected="selected"';
-													} ?>>Seller</option>
-							<option value="Customer" <?php if ($usr_role == 'Customer') {
-															echo 'selected="selected"';
-														} ?>>Customer</option>
+							<option value="Admin" <?php if($usr_role == 'Admin'){ echo 'selected="selected"';} ?>>Admin</option>
+							<option value="Seller" <?php if($usr_role == 'Seller'){ echo 'selected="selected"';} ?>>Seller</option>
+							<option value="Customer" <?php if($usr_role == 'Customer'){ echo 'selected="selected"';} ?>>Customer</option>
 						</select>
 					</td>
 				</tr>
@@ -201,22 +213,25 @@ if($id != '' && $action == 'Delete'){
 				</tr>
 		
 	</table></form></td></tr>
-	<?php } else { ?>
-
+	<?php } else { 
 		
-			<?php if ($submitedmsg != '') { echo $submitedmsg; } ?>
-
-				<tr><td><a href="user_master.php?action=Add" class="btn btn-outline-success">Add+</a></td></tr>
+			            if($submitedmsg != ''){ echo $submitedmsg; } ?>
+                <tr><td>
+					<form method="get" action="user_master.php">
+			           <input type="text" placeholder="Search.." name="search" value="<?php echo $search_value; ?>"><button type="submit" id="search_btn" class="btn btn-outline-warning">Search</button>
+					</form>
+				</td></tr>
+				<tr><td align="right"><a href="user_master.php?action=Add" class="btn btn-outline-success"><b>Add+</b></a></td></tr>
 				<tr><td>
 					<table width="100%" border="1">
 				<tr>
-					<td>ID</td>
-					<td>Name</td>
-					<td>Email</td>
-					<td>Role</td>
-					<td>Block</td>
-					<td>Status</td>
-					<td>Action</td>
+					<td><b>ID</b></td>
+					<td><a href="user_master.php?<?php echo $search_url; ?>"><b>Name</b></td>
+					<td><a href="user_master.php?<?php echo $search_url; ?>"><b>Email</b></td>
+					<td><b>Role</b></td>
+					<td><b>Block</b></td>
+					<td><b>Status</b></td>
+					<td><b>Action</b></td>
 				</tr>
 				<?php
 				if ($listing_result->num_rows > 0) {
@@ -230,7 +245,7 @@ if($id != '' && $action == 'Delete'){
 							<td><?php echo $listing_row['status']; ?></td>
 							<td>
 								<a class="btn btn-info" href="user_master.php?action=Edit&id=<?php echo $listing_row['usr_id']; ?>">Edit</a>&nbsp;
-								<a class="btn btn-danger" value="Delete" href="user_master.php?action=Delete&id=<?php echo $listing_row['usr_id']; ?>">Delete</a>
+								<a class="btn btn-danger" onclick="return deletelist();" href="user_master.php?action=Delete&id=<?php echo $listing_row['usr_id']; ?>">Delete</a>
 							</td>
 						</tr>
 				<?php }
@@ -238,7 +253,7 @@ if($id != '' && $action == 'Delete'){
 				?>
 				</table>
 		</td></tr>
-		
+		<tr><td> <?php include('pagination.php')?></td></tr>
 	<?php
 	}
 	?>
