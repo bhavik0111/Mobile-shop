@@ -20,6 +20,8 @@ if(isset($_POST['submit']))
            $_SESSION["usr_name"] = $usr_name; 
            $_SESSION["usr_password"] = $usr_password; 
            $_SESSION["usr_role"] = $usr_role;
+           ...loggedin
+           
             header("location:index.php");
         }
         else{
