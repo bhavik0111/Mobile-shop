@@ -1,5 +1,9 @@
 <?php
 include('header.php');
+
+ if(!($_SESSION["usr_role"] == 'Admin')){
+	header("location:index.php");
+ }
 $usr_name = '';
 $usr_name_error = '';
 $usr_email = '';
