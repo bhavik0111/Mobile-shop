@@ -14,15 +14,20 @@ if(isset($_POST['submit']))
 
     $usr_query = "SELECT * FROM `user_master` WHERE `usr_name`='".$usr_name."' AND `usr_password`='".$usr_password."' ";
     $usr_result = mysqli_query($conn, $usr_query);
+    $usr_row = $usr_result->fetch_assoc();
 
         if(mysqli_num_rows($usr_result) === 1)
         {
            $_SESSION["usr_name"] = $usr_name; 
            $_SESSION["usr_password"] = $usr_password; 
-           $_SESSION["usr_role"] = $usr_role;
-           ...loggedin
-           
-            header("location:index.php");
+           $_SESSION["usr_role"] = $usr_row['usr_role'];
+           $_SESSION['logged_in'] = true;
+           if($usr_row['usr_role'] == 'Admin'){
+
+               header("location:index.php");
+           }else{
+                header("location:".SITE_URL);
+           }
         }
         else{
            header("location:login.php?msg");
@@ -56,4 +61,3 @@ if(isset($_POST['submit']))
     </form>
 </td></tr>
 <?php include('login_footer.php');    ?>
-
